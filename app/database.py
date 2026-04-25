@@ -1,24 +1,26 @@
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
-from sqlalchemy.orm import declarative_base
-from app.config import get_settings
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker
+from app.config import settings
 
-settings = get_settings()
+# Convert postgresql:// to postgresql+asyncpg:// if needed
+database_url = settings.DATABASE_URL
+if database_url.startswith("postgresql://"):
+    database_url = database_url.replace("postgresql://", "postgresql+asyncpg://", 1)
 
+# Create async engine
 engine = create_async_engine(
-    settings.DATABASE_URL,
-    echo=settings.ENVIRONMENT == "development",
-    future=True
+    database_url,
+    echo=settings.LOG_LEVEL == "DEBUG"
 )
 
-AsyncSessionLocal = async_sessionmaker(
+# Create async session factory
+AsyncSessionLocal = sessionmaker(
     engine,
     class_=AsyncSession,
     expire_on_commit=False
 )
 
-Base = declarative_base()
-
-
+# Dependency for FastAPI
 async def get_db():
     async with AsyncSessionLocal() as session:
         try:
