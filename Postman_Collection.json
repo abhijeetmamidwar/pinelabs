@@ -1,0 +1,334 @@
+{
+  "info": {
+    "name": "Payment Event Ingestion Service",
+    "description": "API collection for Payment Event Ingestion Service",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": ["{{base_url}}"],
+          "path": ["health"]
+        },
+        "description": "Check if the service is healthy"
+      },
+      "response": []
+    },
+    {
+      "name": "Events",
+      "item": [
+        {
+          "name": "POST /events - Ingest Single Event",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event_id\": \"test-event-001\",\n  \"event_type\": \"payment_initiated\",\n  \"transaction_id\": \"test-transaction-001\",\n  \"merchant_id\": \"merchant_1\",\n  \"merchant_name\": \"TestMerchant\",\n  \"amount\": 1000.00,\n  \"currency\": \"INR\",\n  \"timestamp\": \"2026-01-08T12:11:58.085567+00:00\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/events",
+              "host": ["{{base_url}}"],
+              "path": ["events"]
+            },
+            "description": "Ingest a single payment lifecycle event"
+          },
+          "response": []
+        },
+        {
+          "name": "POST /events - Test Idempotency (Duplicate)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event_id\": \"test-event-001\",\n  \"event_type\": \"payment_processed\",\n  \"transaction_id\": \"test-transaction-001\",\n  \"merchant_id\": \"merchant_1\",\n  \"merchant_name\": \"TestMerchant\",\n  \"amount\": 1000.00,\n  \"currency\": \"INR\",\n  \"timestamp\": \"2026-01-08T12:15:58.085567+00:00\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/events",
+              "host": ["{{base_url}}"],
+              "path": ["events"]
+            },
+            "description": "Test idempotency by submitting duplicate event_id"
+          },
+          "response": []
+        },
+        {
+          "name": "POST /events/bulk - Bulk Ingest",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"events\": [\n    {\n      \"event_id\": \"bulk-event-001\",\n      \"event_type\": \"payment_initiated\",\n      \"transaction_id\": \"bulk-transaction-001\",\n      \"merchant_id\": \"merchant_2\",\n      \"merchant_name\": \"BulkMerchant\",\n      \"amount\": 2000.00,\n      \"currency\": \"INR\",\n      \"timestamp\": \"2026-01-08T13:00:00.085567+00:00\"\n    },\n    {\n      \"event_id\": \"bulk-event-002\",\n      \"event_type\": \"payment_processed\",\n      \"transaction_id\": \"bulk-transaction-001\",\n      \"merchant_id\": \"merchant_2\",\n      \"merchant_name\": \"BulkMerchant\",\n      \"amount\": 2000.00,\n      \"currency\": \"INR\",\n      \"timestamp\": \"2026-01-08T13:05:00.085567+00:00\"\n    },\n    {\n      \"event_id\": \"bulk-event-003\",\n      \"event_type\": \"settled\",\n      \"transaction_id\": \"bulk-transaction-001\",\n      \"merchant_id\": \"merchant_2\",\n      \"merchant_name\": \"BulkMerchant\",\n      \"amount\": 2000.00,\n      \"currency\": \"INR\",\n      \"timestamp\": \"2026-01-08T13:10:00.085567+00:00\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/events/bulk",
+              "host": ["{{base_url}}"],
+              "path": ["events", "bulk"]
+            },
+            "description": "Ingest multiple events in bulk"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Transactions",
+      "item": [
+        {
+          "name": "GET /transactions - List All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/transactions?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["transactions"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "List all transactions with pagination"
+          },
+          "response": []
+        },
+        {
+          "name": "GET /transactions - Filter by Merchant",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/transactions?merchant_id=merchant_1&page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["transactions"],
+              "query": [
+                {
+                  "key": "merchant_id",
+                  "value": "merchant_1"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Filter transactions by merchant"
+          },
+          "response": []
+        },
+        {
+          "name": "GET /transactions - Filter by Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/transactions?status=processed&page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["transactions"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "processed"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Filter transactions by payment status"
+          },
+          "response": []
+        },
+        {
+          "name": "GET /transactions - Filter by Date Range",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/transactions?start_date=2026-01-08&end_date=2026-01-09&page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["transactions"],
+              "query": [
+                {
+                  "key": "start_date",
+                  "value": "2026-01-08"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2026-01-09"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Filter transactions by date range"
+          },
+          "response": []
+        },
+        {
+          "name": "GET /transactions/{id} - Get Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/transactions/test-transaction-001",
+              "host": ["{{base_url}}"],
+              "path": ["transactions", "test-transaction-001"]
+            },
+            "description": "Get transaction details with event history"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Reconciliation",
+      "item": [
+        {
+          "name": "GET /reconciliation/summary - Group by Merchant",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reconciliation/summary?group_by=merchant",
+              "host": ["{{base_url}}"],
+              "path": ["reconciliation", "summary"],
+              "query": [
+                {
+                  "key": "group_by",
+                  "value": "merchant"
+                }
+              ]
+            },
+            "description": "Get reconciliation summary grouped by merchant"
+          },
+          "response": []
+        },
+        {
+          "name": "GET /reconciliation/summary - Group by Date",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reconciliation/summary?group_by=date",
+              "host": ["{{base_url}}"],
+              "path": ["reconciliation", "summary"],
+              "query": [
+                {
+                  "key": "group_by",
+                  "value": "date"
+                }
+              ]
+            },
+            "description": "Get reconciliation summary grouped by date"
+          },
+          "response": []
+        },
+        {
+          "name": "GET /reconciliation/summary - Group by Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reconciliation/summary?group_by=status",
+              "host": ["{{base_url}}"],
+              "path": ["reconciliation", "summary"],
+              "query": [
+                {
+                  "key": "group_by",
+                  "value": "status"
+                }
+              ]
+            },
+            "description": "Get reconciliation summary grouped by status"
+          },
+          "response": []
+        },
+        {
+          "name": "GET /reconciliation/discrepancies - All Discrepancies",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reconciliation/discrepancies",
+              "host": ["{{base_url}}"],
+              "path": ["reconciliation", "discrepancies"]
+            },
+            "description": "Get all transactions with discrepancies"
+          },
+          "response": []
+        },
+        {
+          "name": "GET /reconciliation/discrepancies - Filter by Merchant",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reconciliation/discrepancies?merchant_id=merchant_1",
+              "host": ["{{base_url}}"],
+              "path": ["reconciliation", "discrepancies"],
+              "query": [
+                {
+                  "key": "merchant_id",
+                  "value": "merchant_1"
+                }
+              ]
+            },
+            "description": "Get discrepancies for a specific merchant"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    }
+  ]
+}
