@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, declarative_base
 from app.config import settings
 
 # Convert postgresql:// to postgresql+asyncpg:// if needed
@@ -19,6 +19,9 @@ AsyncSessionLocal = sessionmaker(
     class_=AsyncSession,
     expire_on_commit=False
 )
+
+# Create declarative base for models
+Base = declarative_base()
 
 # Dependency for FastAPI
 async def get_db():
